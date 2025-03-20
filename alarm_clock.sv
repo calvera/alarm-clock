@@ -23,7 +23,6 @@ module alarm_clock (
     logic hour;
     logic hour10;
     logic r;
-    logic reset_sync;
     logic ss;
     logic pll_clk;
     logic [1:0] counter;
@@ -34,12 +33,7 @@ module alarm_clock (
         .c0(pll_clk)
     );
 
-    // Reset synchronizer
-    always_ff @(posedge pll_clk) begin
-        reset_sync <= reset;
-    end
-
-    assign r = ~reset_sync;
+    assign r = ~reset;
     assign ss = ~show_seconds;
 
     // Counter for display refresh
