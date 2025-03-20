@@ -63,7 +63,7 @@ module segment7 #(
     always_comb begin
         case (SEGMENT_SELECT_ACTIVE)
             ACTIVE_LOW:  segment_sel = ~segment_sel_internal;
-            ACTIVE_HIGH: segment_sel = segment_sel_internal;
+            default: segment_sel = segment_sel_internal;
         endcase
     end
 
@@ -74,7 +74,7 @@ module segment7 #(
     always_comb begin
         case (SEGMENTS_ACTIVE)
             ACTIVE_LOW:  segments = ~segments_internal;
-            ACTIVE_HIGH: segments = segments_internal;
+            default: segments = segments_internal;
         endcase
     end
 

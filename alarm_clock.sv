@@ -49,7 +49,8 @@ module alarm_clock (
     ) refresh (
         .clk_in(pll_clk),
         .counting(counter),
-        .reset(r)
+        .reset(r),
+        .clk_out()
     );
 
     // 1Hz clock generator
@@ -69,7 +70,8 @@ module alarm_clock (
         .clk_in(seconds),
         .reset(r),
         .max_reached(seconds10),
-        .count(sec_low)
+        .count(sec_low),
+        .use_max_2nd()
     );
 
     // Seconds high digit
@@ -80,7 +82,8 @@ module alarm_clock (
         .clk_in(seconds10),
         .reset(r),
         .max_reached(minutes),
-        .count(sec_high)
+        .count(sec_high),
+        .use_max_2nd()
     );
 
     // Minutes low digit
@@ -91,7 +94,8 @@ module alarm_clock (
         .clk_in(minutes),
         .reset(r),
         .max_reached(minutes10),
-        .count(min_low)
+        .count(min_low),
+        .use_max_2nd()
     );
 
     // Minutes high digit
@@ -102,7 +106,8 @@ module alarm_clock (
         .clk_in(minutes10),
         .reset(r),
         .count(min_high),
-        .max_reached(hour)
+        .max_reached(hour),
+        .use_max_2nd()
     );
 
     // Hours low digit
@@ -125,18 +130,19 @@ module alarm_clock (
     ) hh (
         .clk_in(hour10),
         .reset(r),
-        .count(hour_high)
+        .count(hour_high),
+        .max_reached(),
+        .use_max_2nd()
     );
 
     always_comb begin
+        decimal_point = { 1'b0, seconds, 2'b0 };
         if (!ss) begin
             digit = {hour_high, hour_low, min_high, min_low};
             dig_en = { hour_high[1] | hour_high[0], 3'b111};
-            decimal_point = { 1'b0, seconds, 2'b0 };
         end else begin
             digit = {4'h0, 4'h0, sec_high, sec_low};
             dig_en = { 4'b11 };
-            decimal_point = 4'b0;
         end
     end
 
