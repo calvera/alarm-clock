@@ -1,5 +1,3 @@
-// Verilator Example
-// Norbertas Kremeris 2021
 #include <stdlib.h>
 #include <iostream>
 #include <cstdlib>
@@ -7,10 +5,8 @@
 #include <verilated_vcd_c.h>
 #include "Vsegment7.h"
 
-#define MAX_SIM_TIME 300
-#define VERIF_START_TIME 7
+#define MAX_SIM_TIME 1024
 vluint64_t sim_time = 0;
-vluint64_t posedge_cnt = 0;
 
 int main(int argc, char** argv, char** env) {
     srand (time(NULL));
@@ -24,15 +20,13 @@ int main(int argc, char** argv, char** env) {
 
     dut->counter = 0;
     dut->enable = 1;
-    dut->decimal_point = 4;
-    dut->digit_enable = 7;
-    dut->digit[0] = 6;
-    dut->digit[1] = 7;
-    dut->digit[2] = 8;
-    dut->digit[3] = 9;
+    dut->decimal_point = 0;
+    dut->digit_enable = 15;
 
     while (sim_time < MAX_SIM_TIME) {
         dut->counter = sim_time % 4;
+        dut->digit = sim_time >> 6;
+        dut->decimal_point = sim_time >> 2;
         dut->eval();
 
         m_trace->dump(sim_time);

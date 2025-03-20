@@ -5,18 +5,17 @@ import segment7_pkg::*;
 
 module segment7 #(
     parameter int SEGMENTS = 4,
+    parameter int C_BITS = $clog2(SEGMENTS),
     parameter polarity_t SEGMENT_SELECT_ACTIVE = ACTIVE_LOW,
-    parameter polarity_t SEGMENTS_ACTIVE = ACTIVE_LOW,
-    localparam int C_BITS = $clog2(SEGMENTS)
+    parameter polarity_t SEGMENTS_ACTIVE = ACTIVE_LOW
 )(
     input logic [C_BITS-1:0] counter,
     input logic enable,
     input logic [SEGMENTS-1:0] digit_enable,
-    input digit_t digit [SEGMENTS-1:0],
+    input digit_t [SEGMENTS-1:0] digit,
     input logic [SEGMENTS-1:0] decimal_point,
     output segment_output_t segments,
     output logic [SEGMENTS-1:0] segment_sel
-    
 );
 
     typedef logic [6:0] segment_pattern_t;
@@ -27,7 +26,7 @@ module segment7 #(
         input logic dec_point
     );
         segment_pattern_t segment_pattern;
-        
+
         case (number)
             4'h0: segment_pattern = 7'b0111111;
             4'h1: segment_pattern = 7'b0000110;
@@ -51,31 +50,31 @@ module segment7 #(
         return {dec_point, segment_pattern};
     endfunction
 
-    digit_t current_digit;
     logic current_dec_point;
-
-    assign current_digit = digit[counter];
     assign current_dec_point = enable & decimal_point[counter];
 
+    logic current_enable;
+    assign current_enable = enable & digit_enable[counter];
+
     logic [SEGMENTS-1:0] segment_sel_internal;
-    assign segment_sel_internal = {SEGMENTS{enable}} & {SEGMENTS{digit_enable[counter]}} & (1 << counter);
+    assign segment_sel_internal = (current_enable ? 4'h1 : 4'b0 ) << counter;
 
     // Segment select output logic
     always_comb begin
         case (SEGMENT_SELECT_ACTIVE)
-            ACTIVE_LOW:  segment_sel = segment_sel_internal;
-            ACTIVE_HIGH: segment_sel = ~segment_sel_internal;
+            ACTIVE_LOW:  segment_sel = ~segment_sel_internal;
+            ACTIVE_HIGH: segment_sel = segment_sel_internal;
         endcase
     end
 
     // Segment output logic
     segment_output_t segments_internal;
-    assign segments_internal = segment7_decoder(current_digit, current_dec_point);
-    
+    assign segments_internal = segment7_decoder(digit[counter], current_dec_point);
+
     always_comb begin
         case (SEGMENTS_ACTIVE)
-            ACTIVE_LOW:  segments = segments_internal;
-            ACTIVE_HIGH: segments = ~segments_internal;
+            ACTIVE_LOW:  segments = ~segments_internal;
+            ACTIVE_HIGH: segments = segments_internal;
         endcase
     end
 

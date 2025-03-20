@@ -1,6 +1,6 @@
 module counting #(
     parameter COUNTING_BITS = 16,
-    parameter MAX = 9
+    parameter MAX = 0
 ) (
     input  logic clk_in,
     input  logic reset,
