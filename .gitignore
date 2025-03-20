@@ -1,0 +1,11 @@
+*.vcd
+*.cf
+.stamp.verilate.*
+UVVM*.*
+lib/*
+*.bak
+db/
+incremental_db/
+output_files/
+simulation/
+obj_dir/
