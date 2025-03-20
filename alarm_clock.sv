@@ -11,7 +11,7 @@ module alarm_clock (
     logic [3:0] min_low;
     logic [3:0] min_high;
     logic [3:0] hour_low;
-    logic [3:0] hour_high;
+    logic [1:0] hour_high;
     digit_t [3:0] digit;
     logic [3:0] dig_en;
     logic [3:0] decimal_point;
@@ -43,17 +43,18 @@ module alarm_clock (
     assign ss = ~show_seconds;
 
     // Counter for display refresh
-    counting #(
-    .COUNTING_BITS(2)
+    counting_clock #(
+        .DIVIDER(8),
+        .COUNTING_BITS(2)
     ) refresh (
         .clk_in(pll_clk),
-        .count(counter),
+        .counting(counter),
         .reset(r)
     );
 
     // 1Hz clock generator
     clock #(
-    .DIVIDER(2500) // 1Hz
+    .DIVIDER(2500) // 1Hz = 2500
     ) secs (
         .clk_in(pll_clk),
         .reset(r),
@@ -107,35 +108,35 @@ module alarm_clock (
     // Hours low digit
     counting #(
         .COUNTING_BITS(4),
-        .MAX(9) //,
-        //        .OVERFLOW2(3)
+        .MAX(9),
+        .MAX_2ND(3)
     ) hl (
         .clk_in(hour),
         .reset(r),
         .max_reached(hour10),
         .count(hour_low),
-        //        .overflow2_enabled(hour_high[1])
+        .use_max_2nd(hour_high[1])
     );
 
     // Hours high digit
     counting #(
-        .COUNTING_BITS(3),
+        .COUNTING_BITS(2),
         .MAX(2)
     ) hh (
         .clk_in(hour10),
         .reset(r),
-        .count(hour_high[2:0])
+        .count(hour_high)
     );
 
-    always_ff @(ss) begin
+    always_comb begin
         if (!ss) begin
-            digit <= {hour_high, hour_low, min_high, min_low};
-            dig_en <= { hour_high[1] | hour_high[0], 3'b111};
-            decimal_point <= { 1'b0, seconds, 2'b0 };
+            digit = {hour_high, hour_low, min_high, min_low};
+            dig_en = { hour_high[1] | hour_high[0], 3'b111};
+            decimal_point = { 1'b0, seconds, 2'b0 };
         end else begin
-            digit <= {4'h0, 4'h0, sec_high, sec_low};
-            dig_en <= { 4'b11 };
-            decimal_point <= 4'b0;
+            digit = {4'h0, 4'h0, sec_high, sec_low};
+            dig_en = { 4'b11 };
+            decimal_point = 4'b0;
         end
     end
 
