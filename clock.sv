@@ -6,7 +6,7 @@ module clock #(
     output logic clk_out
 );
 
-    localparam C_TICKS = (DIVIDER - 1) / 2 - 1;
+    localparam C_TICKS = DIVIDER - 1;
     localparam C_BITS = $clog2(C_TICKS);
 
     reg [C_BITS:0] counter;
@@ -19,8 +19,11 @@ module clock #(
         end else begin
             counter <= counter - 1'b1;
             if (counter[C_BITS]) begin
-                temp_clk <= ~temp_clk;
+                temp_clk <= 1'b1;
                 counter <= C_TICKS[C_BITS:0];
+            end
+            else begin
+                temp_clk <= 1'b0;
             end
         end
     end

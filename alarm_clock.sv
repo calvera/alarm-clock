@@ -1,12 +1,12 @@
 module alarm_clock (
-    input logic clk_in,
+    input logic clk_in, // 50MHz / 25000 = 2kHz
     input logic reset,
     input logic show_seconds,
     output logic [3:0] DIG,
     output logic [7:0] SEG
 );
 
-    logic [3:0] sec_low;
+    logic [4:0] sec_low;
     logic [3:0] sec_high;
     logic [3:0] min_low;
     logic [3:0] min_high;
@@ -16,12 +16,13 @@ module alarm_clock (
     logic [3:0] dig_en;
     logic [3:0] decimal_point;
 
-    logic seconds;
+    logic half_seconds;
     logic seconds10;
     logic minutes;
     logic minutes10;
     logic hour;
     logic hour10;
+    logic refresh_clk;
     logic r;
     logic ss;
     logic pll_clk;
@@ -37,31 +38,39 @@ module alarm_clock (
     assign ss = ~show_seconds;
 
     // Counter for display refresh
-    counting_clock #(
-        .DIVIDER(8),
-        .COUNTING_BITS(2)
+    integer_divider #(
+    .DIVIDER(8)
     ) refresh (
         .clk_in(pll_clk),
-        .counting(counter),
         .reset(r),
-        .clk_out()
+        .strobe_out(refresh_clk)
+    );
+
+    counting #(
+    .COUNTING_BITS(2)
+    ) counting_instance (
+        .clk_in(refresh_clk),
+        .reset(r),
+        .use_max_2nd(),
+        .max_reached(),
+        .count(counter)
     );
 
     // 1Hz clock generator
-    clock #(
-    .DIVIDER(2500) // 1Hz = 2500
-    ) secs (
+    integer_divider #(
+    .DIVIDER(1000) // 1Hz = 2000
+    ) half_secs (
         .clk_in(pll_clk),
         .reset(r),
-        .clk_out(seconds)
+        .strobe_out(half_seconds)
     );
 
     // Seconds low digit
     counting #(
-        .COUNTING_BITS(4),
-        .MAX(9)
+        .COUNTING_BITS(5),
+        .MAX(19)
     ) sl (
-        .clk_in(seconds),
+        .clk_in(half_seconds),
         .reset(r),
         .max_reached(seconds10),
         .count(sec_low),
@@ -130,12 +139,12 @@ module alarm_clock (
     );
 
     always_comb begin
-        decimal_point = { 1'b0, seconds, 2'b0 };
+        decimal_point = { 1'b0, sec_low[0], 2'b0 };
         if (!ss) begin
             digit = {hour_high, hour_low, min_high, min_low};
             dig_en = { hour_high[1] | hour_high[0], 3'b111};
         end else begin
-            digit = {4'h0, 4'h0, sec_high, sec_low};
+            digit = {4'h0, 4'h0, sec_high, sec_low[4:1]};
             dig_en = { 4'b11 };
         end
     end
