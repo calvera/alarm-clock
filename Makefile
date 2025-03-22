@@ -1,5 +1,5 @@
 # List of modules to build
-MODULES = counting segment7 clock counting_clock fractional_divider integer_divider
+MODULES = counting segment7 clock counting_clock integer_divider
 
 # Common variables
 VERILATOR = verilator

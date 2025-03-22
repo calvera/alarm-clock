@@ -163,7 +163,6 @@ set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 # end ENTITY(alarm_clock)
 # -----------------------
 set_global_assignment -name SYSTEMVERILOG_FILE integer_divider.sv
-set_global_assignment -name SYSTEMVERILOG_FILE fractional_divider.sv
 set_global_assignment -name SYSTEMVERILOG_FILE alarm_clock.sv
 set_global_assignment -name SYSTEMVERILOG_FILE counting.sv
 set_global_assignment -name SYSTEMVERILOG_FILE clock.sv

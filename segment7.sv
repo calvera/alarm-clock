@@ -57,7 +57,7 @@ module segment7 #(
     assign current_enable = enable & digit_enable[counter];
 
     logic [SEGMENTS-1:0] segment_sel_internal;
-    assign segment_sel_internal = (current_enable ? 4'h1 : 4'b0 ) << counter;
+    assign segment_sel_internal = {SEGMENTS{current_enable}} & (1'b1 << counter);
 
     // Segment select output logic
     always_comb begin
