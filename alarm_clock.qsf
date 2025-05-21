@@ -62,7 +62,6 @@ set_location_assignment PIN_121 -to SEG[1]
 set_location_assignment PIN_128 -to SEG[0]
 set_location_assignment PIN_23 -to clk_in
 set_location_assignment PIN_25 -to reset
-set_location_assignment PIN_91 -to show_seconds
 
 # Classic Timing Assignments
 # ==========================
@@ -169,4 +168,8 @@ set_global_assignment -name SYSTEMVERILOG_FILE clock.sv
 set_global_assignment -name SYSTEMVERILOG_FILE segment7.sv
 set_global_assignment -name SYSTEMVERILOG_FILE counting_clock.sv
 set_global_assignment -name QIP_FILE pll.qip
+set_location_assignment PIN_91 -to button4
+set_location_assignment PIN_90 -to button3
+set_location_assignment PIN_89 -to button2
+set_location_assignment PIN_88 -to button1
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

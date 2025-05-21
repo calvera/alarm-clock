@@ -1,7 +1,10 @@
 module alarm_clock (
     input logic clk_in, // 50MHz / 25000 = 2kHz
     input logic reset,
-    input logic show_seconds,
+    input logic button1,
+    input logic button2,
+    input logic button3,
+    input logic button4,
     output logic [3:0] DIG,
     output logic [7:0] SEG
 );
@@ -24,7 +27,7 @@ module alarm_clock (
     logic hour10;
     logic refresh_clk;
     logic r;
-    logic ss;
+    logic show_seconds;
     logic pll_clk;
     logic [1:0] counter;
 
@@ -35,7 +38,9 @@ module alarm_clock (
     );
 
     assign r = ~reset;
-    assign ss = ~show_seconds;
+    assign show_seconds = ~button4;
+    assign plus_minutes = ~button3;
+    assign plus_hour = ~button2;
 
     // Counter for display refresh
     integer_divider #(
@@ -94,7 +99,7 @@ module alarm_clock (
         .COUNTING_BITS(4),
         .MAX(9)
     ) ml (
-        .clk_in(minutes),
+        .clk_in(minutes | plus_minutes),
         .reset(r),
         .max_reached(minutes10),
         .count(min_low),
@@ -119,7 +124,7 @@ module alarm_clock (
         .MAX(9),
         .MAX_2ND(3)
     ) hl (
-        .clk_in(hour),
+        .clk_in(hour | plus_hour),
         .reset(r),
         .max_reached(hour10),
         .count(hour_low),
@@ -140,7 +145,7 @@ module alarm_clock (
 
     always_comb begin
         decimal_point = { 1'b0, sec_low[0], 2'b0 };
-        if (!ss) begin
+        if (!show_seconds) begin
             digit = {hour_high, hour_low, min_high, min_low};
             dig_en = { hour_high[1] | hour_high[0], 3'b111};
         end else begin
